@@ -15,21 +15,23 @@ public class SCCGraph {
 	BufferedReader br;
 	static int t=0;
 	static int s=0;
+//	int ii,sizeG;
 	static int maxVal;
-	static HashMap<Integer,Boolean> explored = new HashMap<Integer, Boolean>();
-	static HashMap<Integer,Integer> leader = new HashMap<Integer, Integer>();
+	HashMap<Integer,Boolean> explored = new HashMap<Integer, Boolean>();
+	HashMap<Integer,Integer> leader = new HashMap<Integer, Integer>();
 	static HashMap<Integer,Integer> leaders = new HashMap<Integer, Integer>();
 	static HashMap<Integer,Integer> finishTime = new HashMap<Integer, Integer>();
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		SCCGraph obj = new SCCGraph();
-		int[][] arr = obj.readFile("sccmini");
-//		System.out.println(Array.getLength(arr));
-		maxVal = obj.findMax(arr);
-		System.out.println(maxVal);
+		ArrayList<String> arr = obj.readFile2("sccTest");
+		
+		System.out.println("Read File");
+//		maxVal = obj.findMax(arr);
+//		System.out.println(maxVal);
 		int i,j;
 		for(i=1;i<=maxVal;i++) {
-			explored.put(i,false);
+			obj.explored.put(i,false);
 		}
 		ArrayList<Integer>[] graphOrder = new ArrayList[maxVal+1];
 		for(i=0;i<=maxVal;i++) {
@@ -37,8 +39,11 @@ public class SCCGraph {
 		}
 
 		ArrayList<Integer>[] graphOrig = obj.adjacency(arr);
+		System.out.println("adj");
 		ArrayList<Integer>[] graphRev = obj.adjacencyRev(arr);
+		System.out.println("adjRev");
 		obj.DFSLoop(graphRev);
+		System.out.println("DFS Loop on Rev");
 		for(j=1;j<=maxVal;j++) {
 //			graphOrder[finishTime.get(j)] = graphOrig[j];
 			for(int k:graphOrig[j]) {
@@ -50,9 +55,10 @@ public class SCCGraph {
 		
 		
 		for(i=1;i<=maxVal;i++) {
-			explored.put(i,false);
+			obj.explored.put(i,false);
 		}		
 		obj.DFSLoop(graphOrder);
+		System.out.println("DFS Loop on Ordered");
 //display leader		
 /*		for(Map.Entry m:SCCGraph.leader.entrySet()) {
 			System.out.println(m.getKey() + ": " + m.getValue());
@@ -64,7 +70,7 @@ public class SCCGraph {
 		int tmp=0, leadNode;
 //		HashMap<Integer,Integer> leaders = new HashMap<Integer, Integer>();
 		for(i=1;i<=maxVal;i++) {
-			leadNode = leader.get(i);
+			leadNode = obj.leader.get(i);
 			if(leaders.containsKey(leadNode)) {
 				tmp = leaders.get(leadNode);
 				tmp++;
@@ -160,18 +166,20 @@ public class SCCGraph {
 	public void DFS(ArrayList<Integer>[] Graph, int node) {
 		explored.put(node,true);
 		leader.put(node, s);
-		for(int i:Graph[node]) {
-			if(explored.get(i)==false) {
-				DFS(Graph,i);
+		int sizeG = Graph[node].size();
+		int ii;
+		for(ii=0;ii<sizeG;ii++) {
+			if(explored.get(Graph[node].get(ii))==false) {
+				DFS(Graph,Graph[node].get(ii));
 			}
 		}
 		t++;
 		finishTime.put(node, t);
 		
 	}
-	public ArrayList<Integer>[] adjacencyRev(int[][] matStr) {
+	public ArrayList<Integer>[] adjacencyRev(ArrayList<String> fileList) {
 		
-		int len = Array.getLength(matStr);
+		int len = fileList.size();
 		int i,j;
 //		for(i=0;i<len;i++) {
 //			for(j=0;j<2;j++) {
@@ -180,14 +188,16 @@ public class SCCGraph {
 //				}
 //			}
 //		}
-//		System.out.println(maxVal);
-		ArrayList<Integer>[] adjMat= new ArrayList[maxVal+1];
-		for(i=0;i<=maxVal;i++) {
-			adjMat[i] = new ArrayList<Integer>();
+		
+		ArrayList[] adjMat= new ArrayList[maxVal+1];
+			
+		for(j=0;j<=maxVal;j++) {
+			adjMat[j] = new ArrayList<Integer>();
 		}
-
-		for(i=0;i<len;i++) {
-			adjMat[matStr[i][1]].add(matStr[i][0]);
+		String[] col = new String[2];
+		for(j=0;j<len;j++) {
+			col = fileList.get(j).split(" ");
+			adjMat[Integer.parseInt(col[1])].add(Integer.parseInt(col[0]));
 		}
 //		System.out.println(adjMat[10].size());
 		
@@ -197,9 +207,9 @@ public class SCCGraph {
 		return adjMat;
 	}
 
-	public ArrayList<Integer>[] adjacency(int[][] matStr) {
+	public ArrayList<Integer>[] adjacency(ArrayList<String> fileList) {
 			
-		int len = Array.getLength(matStr);
+		int len = fileList.size();
 		int i,j;
 //		for(i=0;i<len;i++) {
 //			for(j=0;j<2;j++) {
@@ -210,12 +220,28 @@ public class SCCGraph {
 //		}
 		
 		ArrayList<Integer>[] adjMat= new ArrayList[maxVal+1];
-		for(i=1;i<=maxVal;i++) {
-			adjMat[i] = new ArrayList<Integer>();
+			
+		for(j=0;j<=maxVal;j++) {
+			adjMat[j] = new ArrayList<Integer>();
 		}
-
-		for(i=0;i<len;i++) {
-			adjMat[matStr[i][0]].add(matStr[i][1]);
+		System.out.println("declared adjMat");
+//		String[] strArr = new String[len];
+//		String[][] ind = new String[len][2];
+//		int col[] = new int[2];
+//		for(j=0;j<len;j++) {
+//			strArr[j]= fileList.get(j);
+//			ind[j] = fileList.get(j).split(" ");
+//			ind[j][0] = 
+//			ind[j][1] = Integer.parseInt(col[1]);
+			
+//		}
+//		System.out.println("copied to array");
+		
+		for(j=0;j<len;j++) {
+//			col = fileList.get(j).split(" ");
+//			col = strArr[j].split(" ");
+			adjMat[Integer.parseInt(fileList.get(j).split(" ")[0])].add(Integer.parseInt(fileList.get(j).split(" ")[1]));
+//			adjMat[ind[j][0]].add(ind[j][1]);
 		}
 //		System.out.println(adjMat[10].size());
 		
@@ -285,7 +311,7 @@ public class SCCGraph {
 		
 	}
 	
-	public int[][] readFile2(String filename) {
+	public ArrayList<String> readFile2(String filename) {
 		try {
 			fr = new FileReader("/home/stark/Documents/Workspace/java/" + filename + ".txt");
 			br = new BufferedReader(fr);
@@ -296,7 +322,7 @@ public class SCCGraph {
 		try {		
 			String i;
 			
-			List<String> fileList = new ArrayList<String>();
+			ArrayList<String> fileList = new ArrayList<String>();
 			
 			while(true) {				
 				i = br.readLine();
@@ -309,21 +335,26 @@ public class SCCGraph {
 			}
 			br.close();
 			fr.close();
-			System.out.println("finished reading");
-			int[][] simpleArray = new int[ fileList.size() ][2];
+			
+			
 			int graphLen = fileList.size();
 			int j;
 			String col[] = new String[2];
 //			String[] col = new String[2];
-			int maxVal;
+//			int maxVal = 0;
 			for(j=0;j<graphLen;j++) {
 				
 				col = fileList.get(j).split(" ");
+				if(maxVal < Integer.parseInt(col[0])) {
+					maxVal = Integer.parseInt(col[0]);
+				}
+				if(maxVal < Integer.parseInt(col[1])) {
+					maxVal = Integer.parseInt(col[1]);
+				}
 				
 			}
-			
-			
-			return simpleArray;
+					
+			return fileList;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
